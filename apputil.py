@@ -18,6 +18,9 @@ def survival_demographics(df=None):
 
     if df is None:
         df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
+    
+    # Lowercase column names for the sake of the autograder and my sanity
+    df.columns = df.columns.str.lower()
 
     # Create age groups as categorical
     bins = [0, 12, 19, 59, np.inf]
@@ -25,24 +28,24 @@ def survival_demographics(df=None):
     df['age_group'] = pd.cut(df['Age'], bins=bins, labels=labels, right=False)
     
     # Group by class, sex, and age group
-    grouped = df.groupby(['Pclass', 'Sex', 'age_group'], dropna=False, observed=False)
+    grouped = df.groupby(['pclass', 'sex', 'age_group'], dropna=False)
     
     # Calculate statistics
     result = grouped.agg(
-        n_passengers=('PassengerId', 'count'),
-        n_survivors=('Survived', 'sum')
+        n_passengers=('passengerid', 'count'),
+        n_survivors=('survived', 'sum')
     ).reset_index()
     
     # Create all combinations to include groups with no members
     all_combos = pd.MultiIndex.from_product(
         [[1, 2, 3], ['female', 'male'], labels],
-        names=['Pclass', 'Sex', 'age_group']
+        names=['pclass', 'sex', 'age_group']
     ).to_frame(index=False)
     
     # Merge and fill missing groups with 0
     result = (all_combos
-              .merge(result, how='left', on=['Pclass', 'Sex', 'age_group'])
-              .fillna({'n_passengers': 0, 'n_survivors': 0}))
+        .merge(result, how='left', on=['pclass', 'sex', 'age_group'])
+        .fillna({'n_passengers': 0, 'n_survivors': 0}))
     result['n_passengers'] = result['n_passengers'].astype(int)
     result['n_survivors'] = result['n_survivors'].astype(int)
 
@@ -56,7 +59,7 @@ def survival_demographics(df=None):
     result['survival_rate'] = result['survival_rate'].fillna(0)
     
     # Sort for better readability
-    result = result.sort_values(['Pclass', 'Sex', 'age_group'])
+    result = result.sort_values(['pclass', 'sex', 'age_group'])
     
     return result
 
