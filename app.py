@@ -25,6 +25,9 @@ st.write(
 # Titanic Visualization 2
 '''
 )
+
+# Question for Exercise 1
+st.write("Question: What is the average fare ticket by passenger class and family size?")
 # Generate and display the figure
 fig2 = visualize_families()
 st.plotly_chart(fig2, use_container_width=True)
