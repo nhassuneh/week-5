@@ -25,7 +25,7 @@ def survival_demographics(df=None):
     df['age_group'] = pd.cut(df['Age'], bins=bins, labels=labels, right=False)
     
     # Group by class, sex, and age group
-    grouped = df.groupby(['pclass', 'sex', 'age_group'], dropna=False, observed=False)
+    grouped = df.groupby(['Pclass', 'Sex', 'age_group'], dropna=False, observed=False)
     
     # Calculate statistics
     result = grouped.agg(
@@ -36,12 +36,12 @@ def survival_demographics(df=None):
     # Create all combinations to include groups with no members
     all_combos = pd.MultiIndex.from_product(
         [[1, 2, 3], ['female', 'male'], labels],
-        names=['pclass', 'sex', 'age_group']
+        names=['Pclass', 'Sex', 'age_group']
     ).to_frame(index=False)
     
     # Merge and fill missing groups with 0
     result = (all_combos
-              .merge(result, how='left', on=['pclass', 'sex', 'age_group'])
+              .merge(result, how='left', on=['Pclass', 'Sex', 'age_group'])
               .fillna({'n_passengers': 0, 'n_survivors': 0}))
     result['n_passengers'] = result['n_passengers'].astype(int)
     result['n_survivors'] = result['n_survivors'].astype(int)
