@@ -14,7 +14,7 @@ def survival_demographics(df):
     Returns:
         DataFrame with survival statistics by demographic groups
     """
-    # Create age groups
+    # Create age groups as categorical
     bins = [0, 12, 19, 59, np.inf]
     labels = ['Child', 'Teen', 'Adult', 'Senior']
     df['age_group'] = pd.cut(df['Age'], bins=bins, labels=labels, right=False)
@@ -28,8 +28,22 @@ def survival_demographics(df):
         n_survivors=('Survived', 'sum')
     ).reset_index()
     
-    # Calculate survival rate
-    result['survival_rate'] = result['n_survivors'] / result['n_passengers']
+    # Create all combinations to include groups with no members
+    all_combos = pd.MultiIndex.from_product(
+        [[1, 2, 3], ['female', 'male'], labels],
+        names=['Pclass', 'Sex', 'age_group']
+    ).to_frame(index=False)
+    
+    # Merge and fill missing groups with 0
+    result = (all_combos
+              .merge(result, how='left', on=['Pclass', 'Sex', 'age_group'])
+              .fillna({'n_passengers': 0, 'n_survivors': 0}))
+    result['n_passengers'] = result['n_passengers'].astype(int)
+    result['n_survivors'] = result['n_survivors'].astype(int)
+    
+    # Calculate survival rate, and handle division
+    result['survival_rate'] = result['n_survivors'] / result['n_passengers'].replace(0, np.nan)
+    result['survival_rate'] = result['survival_rate'].fillna(0)
     
     # Sort for better readability
     result = result.sort_values(['Pclass', 'Sex', 'age_group'])
@@ -50,19 +64,19 @@ def visualize_demographic():
     # Get survival demographics
     data = survival_demographics(df)
     
-    # Calculate average survival rate for each age group
+    # Calculate average survival rate for each age group (across all classes and sexes)
     avg_by_age = data.groupby('age_group').agg(
         avg_survival_rate=('survival_rate', 'mean')
     ).reset_index()
     
-    # Bar chart creation
+    # Simple bar chart
     fig = px.bar(
         avg_by_age,
         x='age_group',
         y='avg_survival_rate',
         color='age_group',
     )
-    # Updating layout
+
     fig.update_layout(
         title='Average Survival Rates by Age Group',
         xaxis_title='Age Group',
@@ -72,3 +86,5 @@ def visualize_demographic():
     fig.update_yaxes(tickformat='.0%')
     
     return fig
+
+visualize_demographic()
