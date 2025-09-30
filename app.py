@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from apputil import visualize_demographic, visualize_families, visualize_family_size
+from apputil import visualize_demographic
 import plotly.express as px
 
 df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
@@ -19,7 +19,6 @@ st.write("Question: Which age range has the highest average survival rate?")
 fig1 = visualize_demographic()
 st.plotly_chart(fig1, use_container_width=True)
 
-st.write("Based on the data, the age range with the highest average survival rate is Child.")
 
 st.write(
 '''
