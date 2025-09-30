@@ -1,5 +1,4 @@
 import streamlit as st
-
 from apputil import *
 
 # Load Titanic dataset
@@ -11,15 +10,18 @@ st.write(
 
 '''
 )
-# Generate and display the figure
+
+# Question for Exercise 1
+st.write("Question: Which age range has the highest average survival rate?")
+
+# Display the plot
 fig1 = visualize_demographic()
 st.plotly_chart(fig1, use_container_width=True)
 
-st.write(
+st.write("Based on the data, the age range with the highest average survival rate is Child.")
 '''
 # Titanic Visualization 2
 '''
-)
 # Generate and display the figure
 fig2 = visualize_families()
 st.plotly_chart(fig2, use_container_width=True)
