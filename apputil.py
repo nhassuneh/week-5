@@ -189,3 +189,63 @@ def visualize_families():
     )
     
     return fig
+
+
+def age_column_creation(df=None):
+    """
+    Add a column indicating if each passenger is older than the median age for their class.
+    
+    Args:
+        df: DataFrame containing Titanic passenger data
+        
+    Returns:
+        DataFrame with the new 'older_passenger' column
+    """
+    if df is None:
+        df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
+    
+    # Drop rows with missing Age values
+    df = df.dropna(subset=['Age'])
+    
+    # Calculate median age for each passenger class
+    median_ages = df.groupby('Pclass')['Age'].transform('median')
+    
+    # Column creation
+    df['older_passenger'] = df['Age'] > median_ages
+    
+    return df
+
+
+def visualize_family_size():
+    """
+    Visualize the distribution of older vs. younger passengers by class.
+    
+    Returns:
+        Plotly figure showing counts by age division and class
+    """
+    # Load and prepare data
+    df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
+    df = age_column_creation(df)
+    
+    # Count passengers by class and age division
+    counts = df.groupby(['Pclass', 'older_passenger']).size().reset_index(name='count')
+    
+    # Create the plot
+    fig = px.bar(
+        counts,
+        x='Pclass',
+        y='count',
+        color='older_passenger',
+        barmode='group',
+        labels={
+            'Pclass': 'Passenger Class',
+            'count': 'Number of Passengers',
+            'older_passenger': 'Older Than Class Median Age?'
+        },
+    )
+
+    fig.update_layout(
+        title='Passenger Counts by Age Division and Class'
+    )
+    
+    return fig

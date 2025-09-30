@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from apputil import visualize_demographic, visualize_families
+from apputil import visualize_demographic, visualize_families, visualize_family_size
 
 df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
 
