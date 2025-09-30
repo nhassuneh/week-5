@@ -13,7 +13,7 @@ cython_debug/
 # data
 *.zip
 *.csv
-*.txt
+# *.txt
 *.db
 *.graphml
 # *.pickle
@@ -31,4 +31,4 @@ cython_debug/
 
 # environment (ignore one, use the other)
 # environment.yml
-requirements.txt
+# requirements.txt

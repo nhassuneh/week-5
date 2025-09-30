@@ -1,7 +1,8 @@
 import streamlit as st
-from apputil import *
+import pandas as pd
+from apputil import visualize_demographic, visualize_families, visualize_family_size
+import plotly.express as px
 
-# Load Titanic dataset
 df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
 
 st.write(
@@ -19,9 +20,12 @@ fig1 = visualize_demographic()
 st.plotly_chart(fig1, use_container_width=True)
 
 st.write("Based on the data, the age range with the highest average survival rate is Child.")
+
+st.write(
 '''
 # Titanic Visualization 2
 '''
+)
 # Generate and display the figure
 fig2 = visualize_families()
 st.plotly_chart(fig2, use_container_width=True)
