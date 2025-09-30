@@ -4,7 +4,7 @@ import numpy as np
 
 # update/add code below ...
 
-def survival_demographics(df):
+def survival_demographics(df=None):
     """
     Analyze survival patterns by passenger class, sex, and age group.
     
@@ -14,6 +14,10 @@ def survival_demographics(df):
     Returns:
         DataFrame with survival statistics by demographic groups
     """
+
+    if df is None:
+        df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
+
     # Create age groups as categorical
     bins = [0, 12, 19, 59, np.inf]
     labels = ['Child', 'Teen', 'Adult', 'Senior']
@@ -40,6 +44,11 @@ def survival_demographics(df):
               .fillna({'n_passengers': 0, 'n_survivors': 0}))
     result['n_passengers'] = result['n_passengers'].astype(int)
     result['n_survivors'] = result['n_survivors'].astype(int)
+
+    # Ensure age_group is categorical
+    result['age_group'] = result['age_group'].astype(
+        pd.CategoricalDtype(categories=labels, ordered=True)
+    )
     
     # Calculate survival rate, and handle division
     result['survival_rate'] = result['n_survivors'] / result['n_passengers'].replace(0, np.nan)
