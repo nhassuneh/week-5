@@ -25,7 +25,7 @@ def survival_demographics(df=None):
     df['age_group'] = pd.cut(df['Age'], bins=bins, labels=labels, right=False)
     
     # Group by class, sex, and age group
-    grouped = df.groupby(['Pclass', 'Sex', 'age_group'], dropna=False)
+    grouped = df.groupby(['pclass', 'sex', 'age_group'], dropna=False, observed=False)
     
     # Calculate statistics
     result = grouped.agg(
@@ -56,7 +56,7 @@ def survival_demographics(df=None):
     result['survival_rate'] = result['survival_rate'].fillna(0)
     
     # Sort for better readability
-    result = result.sort_values(['pclass', 'sex', 'age_group'])
+    result = result.sort_values(['Pclass', 'Sex', 'age_group'])
     
     return result
 
@@ -97,7 +97,7 @@ def visualize_demographic():
     
     return fig
 
-def family_groups(df):
+def family_groups(df=None):
     """
     Explore the relationship between family size, passenger class, and ticket fare.
     
@@ -107,7 +107,10 @@ def family_groups(df):
     Returns:
         DataFrame with family size statistics by passenger class
     """
-    # Create family_size column: SibSp + Parch + 1 (the passenger themselves)
+    if df is None:
+        df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
+
+    # Create family_size column: Adding the 1 for the passenger themselves
     df['family_size'] = df['SibSp'] + df['Parch'] + 1
     
     # Group by family size and passenger class
@@ -127,7 +130,7 @@ def family_groups(df):
     return result
 
 
-def last_names(df):
+def last_names(df=None):
     """
     Extract last names from the Name column and count occurrences.
     
@@ -137,6 +140,9 @@ def last_names(df):
     Returns:
         Series with last name as index and count as value
     """
+    if df is None:
+        df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
+
     # Extract last name (text before the first comma)
     last_names = df['Name'].str.split(',').str[0]
     
@@ -165,7 +171,7 @@ def visualize_families():
         x='family_size',
         y='avg_fare',
         color='Pclass',
-        markers=True,   # adds dots on each point
+        markers=True, 
         labels={
             'family_size': 'Family Size',
             'avg_fare': 'Average Fare',
