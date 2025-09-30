@@ -25,7 +25,7 @@ def survival_demographics(df=None):
     # Create age groups as categorical
     bins = [0, 12, 19, 59, np.inf]
     labels = ['Child', 'Teen', 'Adult', 'Senior']
-    df['age_group'] = pd.cut(df['Age'], bins=bins, labels=labels, right=False)
+    df['age_group'] = pd.cut(df['age'], bins=bins, labels=labels, right=False)
     
     # Group by class, sex, and age group
     grouped = df.groupby(['pclass', 'sex', 'age_group'], dropna=False)
@@ -82,7 +82,7 @@ def visualize_demographic():
         avg_survival_rate=('survival_rate', 'mean')
     ).reset_index()
     
-    # Simple bar chart
+    # Bar chart
     fig = px.bar(
         avg_by_age,
         x='age_group',
@@ -113,22 +113,25 @@ def family_groups(df=None):
     if df is None:
         df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
 
+    # Lowercase column names
+    df.columns = df.columns.str.lower()
+
     # Create family_size column: Adding the 1 for the passenger themselves
-    df['family_size'] = df['SibSp'] + df['Parch'] + 1
+    df['family_size'] = df['sibsp'] + df['parch'] + 1
     
     # Group by family size and passenger class
-    grouped = df.groupby(['family_size', 'Pclass'])
+    grouped = df.groupby(['family_size', 'pclass'])
     
     # Calculate statistics
     result = grouped.agg(
-        n_passengers=('PassengerId', 'count'),
-        avg_fare=('Fare', 'mean'),
-        min_fare=('Fare', 'min'),
-        max_fare=('Fare', 'max')
+        n_passengers=('passengerid', 'count'),
+        avg_fare=('fare', 'mean'),
+        min_fare=('fare', 'min'),
+        max_fare=('fare', 'max')
     ).reset_index()
     
     # Sort for better readability (by class, then family size)
-    result = result.sort_values(['Pclass', 'family_size'])
+    result = result.sort_values(['pclass', 'family_size'])
     
     return result
 
@@ -146,8 +149,11 @@ def last_names(df=None):
     if df is None:
         df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
 
+    # Lowercase column names
+    df.columns = df.columns.str.lower()
+
     # Extract last name (text before the first comma)
-    last_names = df['Name'].str.split(',').str[0]
+    last_names = df['name'].str.split(',').str[0]
     
     # Count occurrences of each last name
     last_name_counts = last_names.value_counts()
@@ -173,12 +179,12 @@ def visualize_families():
         data,
         x='family_size',
         y='avg_fare',
-        color='Pclass',
+        color='pclass',
         markers=True, 
         labels={
             'family_size': 'Family Size',
             'avg_fare': 'Average Fare',
-            'Pclass': 'Passenger Class'
+            'pclass': 'Passenger Class'
         }
     )
     
@@ -204,14 +210,17 @@ def age_column_creation(df=None):
     if df is None:
         df = pd.read_csv('https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv')
     
+    # Lowercase column names
+    df.columns = df.columns.str.lower()
+    
     # Drop rows with missing Age values
-    df = df.dropna(subset=['Age'])
+    df = df.dropna(subset=['age'])
     
     # Calculate median age for each passenger class
-    median_ages = df.groupby('Pclass')['Age'].transform('median')
+    median_ages = df.groupby('pclass')['age'].transform('median')
     
     # Column creation
-    df['older_passenger'] = df['Age'] > median_ages
+    df['older_passenger'] = df['age'] > median_ages
     
     return df
 
@@ -228,24 +237,21 @@ def visualize_family_size():
     df = age_column_creation(df)
     
     # Count passengers by class and age division
-    counts = df.groupby(['Pclass', 'older_passenger']).size().reset_index(name='count')
+    counts = df.groupby(['pclass', 'older_passenger']).size().reset_index(name='count')
     
     # Create the plot
     fig = px.bar(
         counts,
-        x='Pclass',
+        x='pclass',
         y='count',
         color='older_passenger',
         barmode='group',
-        labels={
-            'Pclass': 'Passenger Class',
-            'count': 'Number of Passengers',
-            'older_passenger': 'Older Than Class Median Age?'
-        },
     )
 
     fig.update_layout(
-        title='Passenger Counts by Age Division and Class'
+        title='Passenger Counts by Age Division and Class',
+        xaxis_title='Passenger Class',
+        yaxis_title='Number of Passengers',
     )
     
     return fig
